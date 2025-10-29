@@ -1,5 +1,23 @@
-
-MONGO_INITDB_ROOT_USERNAME=
-MONGO_INITDB_ROOT_PASSWORD=
-
+# -----------------------------
+# 🌍 General App Configuration
+# -----------------------------
+NODE_ENV=development
+PORT=
+JWT_SECRET=dev-secret-change-me
+REFRESH_TOKEN_SECRET=dev-refresh-secret
 VITE_API_URL=
+
+# -----------------------------
+# 🧠 Database Configuration
+# -----------------------------
+# Credentials used by Mongo (set in docker-compose)
+MONGO_INITDB_ROOT_USERNAME
+MONGO_INITDB_ROOT_PASSWORD=
+MONGO_DB_NAME=
+
+# Connection string used by the backend service (matches the above)
+MONGO_URI="mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongo:27017/${MONGO_DB_NAME}?authSource=admin"
+# -----------------------------
+# 🧠 AI Integration
+# -----------------------------
+AI_ENDPOINT=
