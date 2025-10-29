@@ -41,10 +41,12 @@ router.post("/register", async (req: Request, res: Response) => {
 
         const user = await User.create({ name, email, passwordHash, role });
         const token = signAccessToken(user.id, user.role as any);
+        const refreshToken = await generateRefreshToken(user.id);
 
         return res.status(201).json({
             user: { id: user.id, name, email, role },
             token,
+            refreshToken
         });
     } catch (err: any) {
         if (err instanceof z.ZodError) {

@@ -14,6 +14,7 @@ const TicketSchema = new Schema(
             lat: Number,
             lng: Number,
         },
+        aiAnalysis: { type: String, default: "" },
         createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
         assignedTo: { type: Schema.Types.ObjectId, ref: "User" },
     },

@@ -1,12 +1,15 @@
-import { Response, NextFunction } from "express";
-import { UserRole } from "../utils/jwt";
-import {AuthRequest} from "../types/AuthRequest";
+import { Request, Response, NextFunction, RequestHandler } from "express";
+import { AuthRequest } from "../types/AuthRequest";
 
-export function requireRole(...allowed: UserRole[]) {
-    return (req: AuthRequest, res: Response, next: NextFunction) => {
-        if (!req.userRole) return res.status(401).json({ error: "Unauthorized" });
-        if (!allowed.includes(req.userRole))
-            return res.status(403).json({ error: "Forbidden" });
+export function requireRole(roles: ("admin" | "service_desk" | "standard")[]): RequestHandler {
+    return (req: Request, res: Response, next: NextFunction): void => {
+        const { userRole } = req as AuthRequest;
+
+        if (!userRole || !roles.includes(userRole)) {
+            res.status(403).json({ error: "Forbidden: insufficient role" });
+            return;
+        }
+
         next();
     };
 }
