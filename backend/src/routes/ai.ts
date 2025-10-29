@@ -1,10 +1,13 @@
 import { Router, Request, Response } from "express";
-import fetch from "node-fetch";
 import fs from "fs";
 import path from "path";
+import axios from "axios";
 import { requireAuth } from "../middleware/auth";
 
 const router = Router();
+
+const AI_URL =
+    process.env.AI_URL;
 
 router.post("/analyze", requireAuth, async (req: Request, res: Response) => {
     try {
@@ -20,22 +23,36 @@ router.post("/analyze", requireAuth, async (req: Request, res: Response) => {
 
         const imageBase64 = fs.readFileSync(localPath, { encoding: "base64" });
 
-        const response = await fetch("http://stable-diffusion.42malaga.com:7860/interrogator/analyze", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ image: `data:image/jpeg;base64,${imageBase64}` }),
-        });
+        console.log("[AI] Sending image for analysis:", localPath);
 
-        if (!response.ok) {
-            const errText = await response.text();
-            return res.status(response.status).json({ error: "AI service error", details: errText });
-        }
+        const { data } = await axios.post(
+            AI_URL!,
+            { image: `data:image/jpeg;base64,${imageBase64}` },
+            {
+                headers: { "Content-Type": "application/json" },
+                timeout: 15000,
+            }
+        );
 
-        const data = await response.json();
+        console.log("[AI] Analysis successful:", data);
+
         res.json({ analysis: data });
     } catch (err: any) {
         console.error("AI analysis error:", err);
-        res.status(500).json({ error: "Internal error", details: err.message });
+
+        if (axios.isAxiosError(err)) {
+            const status = err.response?.status || 500;
+            const details = err.response?.data || err.message;
+            return res.status(status).json({
+                error: "AI service error",
+                details,
+            });
+        }
+
+        res.status(500).json({
+            error: "Internal error",
+            details: err?.message || "Unknown error",
+        });
     }
 });
 
