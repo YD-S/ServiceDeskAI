@@ -25,6 +25,8 @@ services:
       - "3000:3000"
     networks:
         - devnet
+    volumes:
+        - ./backend:/usr/src/app
     depends_on:
       - mongo
 
@@ -38,6 +40,8 @@ services:
       - VITE_API_URL=${VITE_API_URL}
     depends_on:
       - backend
+    volumes:
+        - ./frontend:/usr/src/app
     env_file:
       - .env
     networks:
